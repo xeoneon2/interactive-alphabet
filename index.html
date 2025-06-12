@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json">
+  <title>Интерактивная Азбука</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: hsl(0, 0%, 100%);
+      font-family: sans-serif;
+      touch-action: manipulation;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border: 10px solid red;
+      pointer-events: none;
+      animation: borderHue 10s linear infinite;
+      box-sizing: border-box;
+    }
+    @keyframes borderHue {
+      0%   { border-color: red; }
+      14%  { border-color: orange; }
+      28%  { border-color: yellow; }
+      42%  { border-color: green; }
+      57%  { border-color: blue; }
+      71%  { border-color: indigo; }
+      85%  { border-color: violet; }
+      100% { border-color: red; }
+    }
+    @keyframes bgPulse {
+      0%, 100% { background-color: hsl(0, 0%, 100%); }
+      50%      { background-color: hsl(0, 0%, 92%); }
+    }
+    body {
+      animation: bgPulse 12s ease-in-out infinite;
+    }
+    #app {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+    .letter {
+      font-size: 8rem;
+      font-weight: bold;
+      transition: color 0.5s;
+    }
+    .image {
+      width: 60vw;
+      height: 40vh;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="letter" id="letter"></div>
+    <div class="image" id="image"></div>
+  </div>
+
+  <script>
+    const alphabet = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ';
+    const words = [
+      ['Абрикос', 'Арбуз', 'Апельсин'], ['Банан', 'Баклажан', 'Брусника'], ['Вишня', 'Виноград', 'Водяника'],
+      ['Груша', 'Голубика', 'Гранат'], ['Дыня', 'Дима', 'Дом'], ['Ежевика', 'Ель', 'Елена'],
+      ['Жизнь', 'Журавль', 'Жук'], ['Земляника', 'Земля', 'Зонт'], ['Инжир', 'Индюк', 'Икра'],
+      ['Киви', 'Капуста', 'Крыжовник'], ['Лимон', 'Лайм', 'Лук'], ['Мандарин', 'Малина', 'Морковь'],
+      ['Нектарин', 'Носки', 'Ноги'], ['Огурец', 'Облепиха', 'Оливка'], ['Персик', 'Помидор', 'Папа'],
+      ['Редис', 'Редька', 'Рябина'], ['Слива', 'Смородина', 'Свёкла'], ['Тыква', 'Томат', 'Травка'],
+      ['Укроп', 'Улица', 'Улыбка'], ['Финик', 'Фея', 'Фисташка'], ['Хурма', 'Хвостик', 'Хрюша'],
+      ['Цикорий', 'Цапля', 'Цветочек'], ['Черешня', 'Черника', 'Черепаха'], ['Шпинат', 'Шнурки', 'Шиповник'],
+      ['Щавель', 'Щука', 'Щёчка'], ['Эклер', 'эскимо', 'этаж'], ['Юла', 'Юморист', 'Юнга'], ['Яблоко', 'Ягода', 'Язык']
+    ];
+
+    const letterEl = document.getElementById('letter');
+    const imageEl = document.getElementById('image');
+
+    const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+
+    let index = 0;
+    let subIndex = 0;
+    let colorTapCount = 0;
+
+    function updateDisplay() {
+      const letter = alphabet[index];
+      const word = words[index][subIndex];
+      letterEl.textContent = letter;
+      letterEl.style.color = colors[colorTapCount % colors.length];
+
+      const img = new Image();
+      const url = `${index + 1}_${subIndex + 1}.png`;
+      img.src = url;
+      img.onload = () => {
+        imageEl.style.backgroundImage = `url(${url})`;
+        imageEl.textContent = '';
+      };
+      img.onerror = () => {
+        imageEl.style.backgroundImage = '';
+        imageEl.textContent = '😢';
+        imageEl.style.color = colors[colorTapCount % colors.length];
+      };
+    }
+
+    function handleLetterTap() {
+      colorTapCount++;
+      updateDisplay();
+    }
+
+    function nextLetter(direction) {
+      if (direction === 'next') index = (index + 1) % alphabet.length;
+      else index = (index - 1 + alphabet.length) % alphabet.length;
+      colorTapCount = 0;
+      updateDisplay();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') nextLetter('next');
+      if (e.key === 'ArrowLeft') nextLetter('prev');
+    });
+
+    letterEl.addEventListener('click', handleLetterTap);
+
+    let startX;
+    document.addEventListener('mousedown', e => startX = e.clientX);
+    document.addEventListener('mouseup', e => {
+      if (e.clientX - startX > 50) nextLetter('prev');
+      if (startX - e.clientX > 50) nextLetter('next');
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>

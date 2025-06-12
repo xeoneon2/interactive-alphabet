@@ -68,7 +68,7 @@
 <body>
   <div class="rainbow-border" id="container">
     <div id="letter">А</div>
-    <img id="image" src="img/1_1.png" alt="Изображение"/>
+    <img id="image" src="1_1.png" alt="Изображение"/>
     <div id="word">Абрикос</div>
   </div>
 
@@ -120,7 +120,7 @@
       letterEl.textContent = letters[currentLetter];
       letterEl.style.color = colors[currentColor];
       wordEl.textContent = alphabet[currentLetter][currentImage];
-      imageEl.src = `img/${currentLetter + 1}_${currentImage + 1}.png`;
+      imageEl.src = `${currentLetter + 1}_${currentImage + 1}.png`;
       speak();
     }
 

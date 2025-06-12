@@ -124,14 +124,10 @@
     let currentImage = 0;
     let currentColor = 0;
     let currentFont = 0;
-	let descriptions = [];
     const letterEl = document.getElementById('letter');
     const imageEl = document.getElementById('image');
     const wordEl = document.getElementById('word');
-	function getDescription(word) {
-	 const found = descriptions.find(desc => desc.startsWith(word + ' -'));
-	 return found || `${word} `;
-	 }
+
     function updateDisplay() {
       letterEl.textContent = letters[currentLetter];
       letterEl.style.color = colors[currentColor];
@@ -141,18 +137,17 @@
       speak();
     }
 
-   function speak() {
-  const word = alphabet[currentLetter][currentImage];
-  const description = getDescription(word);
-  const utterance = new SpeechSynthesisUtterance(description);
-  utterance.lang = 'ru-RU';
-  utterance.pitch = 0.7;
-  utterance.rate = 0.8;
-  const voices = speechSynthesis.getVoices();
-  utterance.voice = voices.find(v => v.lang === 'ru-RU' && v.name.toLowerCase().includes('male')) || voices.find(v => v.lang === 'ru-RU');
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utterance);
-}
+    function speak() {
+      const utterance = new SpeechSynthesisUtterance(`${letters[currentLetter]}. ${alphabet[currentLetter][currentImage]}`);
+      utterance.lang = 'ru-RU';
+      utterance.pitch = 0.7;
+      utterance.rate = 0.8;
+      const voices = speechSynthesis.getVoices();
+      utterance.voice = voices.find(v => v.lang === 'ru-RU' && v.name.toLowerCase().includes('male')) || voices.find(v => v.lang === 'ru-RU');
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    }
+
     function ripple(x, y) {
       const ripple = document.createElement('div');
       ripple.className = 'ripple';
@@ -245,31 +240,35 @@
     });
 
     // Таймер простоя
-    let idleTimer;
-    function resetIdleTimer() {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => {
-        // Проговариваем описание после 10 секунд бездействия
-        const description = `${alphabet[currentLetter][currentImage]} - это описание предмета.`;
-        const utterance = new SpeechSynthesisUtterance(description);
-        utterance.lang = 'ru-RU';
-        utterance.pitch = 0.7;
-        utterance.rate = 0.8;
-        speechSynthesis.speak(utterance);
-      }, 10000); // 10 секунд
-    }
+	let idleTimer;
+	function resetIdleTimer() {
+	clearTimeout(idleTimer);
+	idleTimer = setTimeout(() => {
+		const word = alphabet[currentLetter][currentImage];
+		const descriptionLine = descriptions.find(line => line.startsWith(word));
+		const description = descriptionLine ? descriptionLine : '${word} - это замечательный предмет.';
+		const utterance = new SpeechSynthesisUtterance(description);
+		utterance.lang = 'ru-RU';
+		utterance.pitch = 0.7;
+		utterance.rate = 0.8;
+		speechSynthesis.cancel();
+		speechSynthesis.speak(utterance);
+	}, 10000); // 10 секунд
+	}
 
     document.body.addEventListener('mousemove', resetIdleTimer);
     document.body.addEventListener('keydown', resetIdleTimer);
     document.body.addEventListener('touchmove', resetIdleTimer);
 
     window.speechSynthesis.onvoiceschanged = updateDisplay;
+	let descriptions = [];
+
 	fetch('descriptions.txt')
-  .then(response => response.text())
-  .then(text => {
-    descriptions = text.split('\n').map(line => line.trim()).filter(line => line);
-  });
-  
+	.then(response => response.text())
+	.then(text => {
+		descriptions = text.split('\n').map(line => line.trim());
+	});
+	
     updateDisplay();
   </script>
 </body>

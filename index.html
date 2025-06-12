@@ -249,8 +249,8 @@
 		const description = descriptionLine ? descriptionLine : '${word} - это замечательный предмет.';
 		const utterance = new SpeechSynthesisUtterance(description);
 		utterance.lang = 'ru-RU';
-		utterance.pitch = 0.7;
-		utterance.rate = 0.8;
+		utterance.pitch = 0.5;
+		utterance.rate = 0.7;
 		speechSynthesis.cancel();
 		speechSynthesis.speak(utterance);
 	}, 10000); // 10 секунд

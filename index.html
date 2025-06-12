@@ -128,7 +128,7 @@
       letterEl.textContent = letters[currentLetter];
       letterEl.style.color = colors[currentColor];
       wordEl.textContent = alphabet[currentLetter][currentImage];
-      imageEl.src = `img/${currentLetter + 1}_${currentImage + 1}.png`;
+      imageEl.src = `${currentLetter + 1}_${currentImage + 1}.png`;
       counterEl.textContent = `${currentLetter + 1} / ${letters.length}`;
       speak();
     }

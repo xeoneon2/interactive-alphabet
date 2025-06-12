@@ -1,80 +1,92 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Интерактивная Азбука</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Russo+One&family=Comfortaa:wght@600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      background: hsl(0, 0%, 100%);
-      font-family: sans-serif;
-      touch-action: manipulation;
-    }
-    body::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      border: 10px solid red;
-      pointer-events: none;
-      animation: borderHue 10s linear infinite;
-      box-sizing: border-box;
-    }
-    @keyframes borderHue {
-      0%   { border-color: red; }
-      14%  { border-color: orange; }
-      28%  { border-color: yellow; }
-      42%  { border-color: green; }
-      57%  { border-color: blue; }
-      71%  { border-color: indigo; }
-      85%  { border-color: violet; }
-      100% { border-color: red; }
-    }
-    @keyframes bgPulse {
-      0%, 100% { background-color: hsl(0, 0%, 100%); }
-      50%      { background-color: hsl(0, 0%, 92%); }
-    }
-    body {
-      animation: bgPulse 12s ease-in-out infinite;
-    }
-    #app {
+      font-family: 'Comfortaa', sans-serif;
+      background: linear-gradient(to bottom, #ffffff, #eeeeee);
+      animation: bgFade 12s infinite alternate;
       height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    @keyframes bgFade {
+      0% { background-color: #ffffff; }
+      50% { background-color: #cccccc; }
+      100% { background-color: #ffffff; }
+    }
+    .rainbow-border {
+      padding: 10px;
+      border: 10px solid;
+      border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) 1;
+      animation: borderRainbow 10s linear infinite;
+      height: 90vh;
+      width: 90vw;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      user-select: none;
+      position: relative;
     }
-    .letter {
-      font-size: 8rem;
+    @keyframes borderRainbow {
+      0% { border-image: linear-gradient(0deg, red, orange, yellow, green, blue, indigo, violet) 1; }
+      100% { border-image: linear-gradient(360deg, red, orange, yellow, green, blue, indigo, violet) 1; }
+    }
+    #letter {
+      font-size: 10rem;
       font-weight: bold;
-      transition: color 0.5s;
+      color: green;
+      transition: color 0.3s, transform 0.3s, font-family 0.3s;
     }
-    .image {
-      width: 60vw;
+    #image {
+      width: 70vw;
       height: 40vh;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 5rem;
+      object-fit: contain;
+    }
+    #word {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+    .ripple {
+      position: absolute;
+      border: 4px solid;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.6;
+      animation: ripple-effect 0.6s ease-out forwards;
+    }
+    @keyframes ripple-effect {
+      0% {
+        transform: scale(0.2);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(3);
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="app">
-    <div class="letter" id="letter"></div>
-    <div class="image" id="image"></div>
+  <div class="rainbow-border">
+    <div id="letter">А</div>
+    <img id="image" src="1_1.png" alt="Изображение">
+    <div id="word">Абрикос</div>
   </div>
-
   <script>
-    const alphabet = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ';
-    const words = [
+    const alphabet = [
       ['Абрикос', 'Арбуз', 'Апельсин'],
       ['Банан', 'Баклажан', 'Брусника'],
       ['Вишня', 'Виноград', 'Водичка'],
@@ -104,62 +116,149 @@
       ['Юла', 'Юла', 'Юла'],
       ['Яблоко', 'Ягода', 'Яблоко']
     ];
+    const letters = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ'.split('');
+    const colors = ['green', 'blue', 'red', 'orange', 'purple', 'deeppink', 'teal'];
+    const fonts = ['Comfortaa', 'Fredoka One', 'Russo One'];
 
+    let currentLetter = 0;
+    let currentImage = 0;
+    let currentColor = 0;
+    let currentFont = 0;
     const letterEl = document.getElementById('letter');
     const imageEl = document.getElementById('image');
-
-    const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
-
-    let index = 0;
-    let subIndex = 0;
-    let colorTapCount = 0;
+    const wordEl = document.getElementById('word');
 
     function updateDisplay() {
-      const letter = alphabet[index];
-      const word = words[index][subIndex];
-      letterEl.textContent = letter;
-      letterEl.style.color = colors[colorTapCount % colors.length];
-
-      const img = new Image();
-      const url = `${index + 1}_${subIndex + 1}.png`;
-      img.src = url;
-      img.onload = () => {
-        imageEl.style.backgroundImage = `url(${url})`;
-        imageEl.textContent = '';
-      };
-      img.onerror = () => {
-        imageEl.style.backgroundImage = '';
-        imageEl.textContent = '😢';
-        imageEl.style.color = colors[colorTapCount % colors.length];
-      };
+      letterEl.textContent = letters[currentLetter];
+      letterEl.style.color = colors[currentColor];
+      letterEl.style.fontFamily = fonts[currentFont];
+      wordEl.textContent = alphabet[currentLetter][currentImage];
+      imageEl.src = `${currentLetter + 1}_${currentImage + 1}.png`;
+      speak();
     }
 
-    function handleLetterTap() {
-      colorTapCount++;
-      updateDisplay();
+    function speak() {
+      const utterance = new SpeechSynthesisUtterance(`${letters[currentLetter]}. ${alphabet[currentLetter][currentImage]}`);
+      utterance.lang = 'ru-RU';
+      utterance.pitch = 0.7;
+      utterance.rate = 0.8;
+      const voices = speechSynthesis.getVoices();
+      utterance.voice = voices.find(v => v.lang === 'ru-RU' && v.name.toLowerCase().includes('male')) || voices.find(v => v.lang === 'ru-RU');
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
     }
 
-    function nextLetter(direction) {
-      if (direction === 'next') index = (index + 1) % alphabet.length;
-      else index = (index - 1 + alphabet.length) % alphabet.length;
-      colorTapCount = 0;
-      updateDisplay();
+    function ripple(x, y) {
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      ripple.style.left = `${x - 50}px`;
+      ripple.style.top = `${y - 50}px`;
+      ripple.style.borderColor = colors[Math.floor(Math.random() * colors.length)];
+      ripple.style.width = ripple.style.height = '100px';
+      document.querySelector('.rainbow-border').appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
     }
 
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowRight') nextLetter('next');
-      if (e.key === 'ArrowLeft') nextLetter('prev');
+    let holdTimer;
+    let isHolding = false;
+
+    function holdAnimation() {
+      letterEl.style.transform = 'scale(1.2) translateY(-10px)';
+    }
+
+    function resetLetterStyle() {
+      letterEl.style.transform = '';
+    }
+
+    document.body.addEventListener('mousedown', e => {
+      isHolding = true;
+      holdTimer = setTimeout(() => holdAnimation(), 2000);
     });
 
-    letterEl.addEventListener('click', handleLetterTap);
-
-    let startX;
-    document.addEventListener('mousedown', e => startX = e.clientX);
-    document.addEventListener('mouseup', e => {
-      if (e.clientX - startX > 50) nextLetter('prev');
-      if (startX - e.clientX > 50) nextLetter('next');
+    document.body.addEventListener('mouseup', e => {
+      clearTimeout(holdTimer);
+      if (isHolding) {
+        ripple(e.clientX, e.clientY);
+        currentColor = (currentColor + 1) % colors.length;
+        currentFont = (currentFont + 1) % fonts.length;
+        resetLetterStyle();
+        updateDisplay();
+      }
+      isHolding = false;
     });
 
+    document.body.addEventListener('click', e => {
+      ripple(e.clientX, e.clientY);
+      currentColor = (currentColor + 1) % colors.length;
+      currentFont = (currentFont + 1) % fonts.length;
+      updateDisplay();
+    });
+
+    document.body.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') {
+        currentLetter = (currentLetter + 1) % letters.length;
+        currentImage = 0;
+      } else if (e.key === 'ArrowLeft') {
+        currentLetter = (currentLetter - 1 + letters.length) % letters.length;
+        currentImage = 0;
+      } else if (e.key === 'ArrowUp') {
+        currentImage = (currentImage + 1) % 3;
+      } else if (e.key === 'ArrowDown') {
+        currentImage = (currentImage - 1 + 3) % 3;
+      }
+      updateDisplay();
+    });
+
+    document.body.addEventListener('touchstart', e => {
+      holdTimer = setTimeout(() => holdAnimation(), 2000);
+    });
+
+    document.body.addEventListener('touchend', e => {
+      clearTimeout(holdTimer);
+      resetLetterStyle();
+    });
+
+    let startX, startY;
+    document.body.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+
+    document.body.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 30) currentLetter = (currentLetter - 1 + letters.length) % letters.length;
+        else if (dx < -30) currentLetter = (currentLetter + 1) % letters.length;
+        currentImage = 0;
+      } else {
+        if (dy > 30) currentImage = (currentImage - 1 + 3) % 3;
+        else if (dy < -30) currentImage = (currentImage + 1) % 3;
+      }
+      updateDisplay();
+    });
+
+    // Таймер простоя
+    let idleTimer;
+    function resetIdleTimer() {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        // Проговариваем описание после 10 секунд бездействия
+        const description = `${alphabet[currentLetter][currentImage]} - это описание предмета.`;
+        const utterance = new SpeechSynthesisUtterance(description);
+        utterance.lang = 'ru-RU';
+        utterance.pitch = 0.7;
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+      }, 10000); // 10 секунд
+    }
+
+    document.body.addEventListener('mousemove', resetIdleTimer);
+    document.body.addEventListener('keydown', resetIdleTimer);
+    document.body.addEventListener('touchmove', resetIdleTimer);
+
+    window.speechSynthesis.onvoiceschanged = updateDisplay;
     updateDisplay();
   </script>
 </body>

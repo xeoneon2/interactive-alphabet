@@ -6,7 +6,7 @@
   <title>Интерактивная Азбука</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Russo+One&family=Comfortaa:wght@600&display=swap" rel="stylesheet">
   <style>
-    * {
+     {
       box-sizing: border-box;
     }
     html, body {
@@ -86,7 +86,6 @@
     <div id="word">Абрикос</div>
   </div>
   <script>
-  
     const alphabet = [
       ['Абрикос', 'Арбуз', 'Апельсин'],
       ['Банан', 'Баклажан', 'Брусника'],
@@ -116,7 +115,7 @@
       ['Эклер', 'Эскимо', 'Эскаватор'],
       ['Юла', 'Юла', 'Юла'],
       ['Яблоко', 'Ягода', 'Яблоко']
-    ];
+    ]; 
     const letters = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ'.split('');
     const colors = ['green', 'blue', 'red', 'orange', 'purple', 'deeppink', 'teal'];
     const fonts = ['Comfortaa', 'Fredoka One', 'Russo One'];
@@ -125,18 +124,11 @@
     let currentImage = 0;
     let currentColor = 0;
     let currentFont = 0;
+    let descriptions = [];
+
     const letterEl = document.getElementById('letter');
     const imageEl = document.getElementById('image');
     const wordEl = document.getElementById('word');
-
-    function updateDisplay() {
-      letterEl.textContent = letters[currentLetter];
-      letterEl.style.color = colors[currentColor];
-      letterEl.style.fontFamily = fonts[currentFont];
-      wordEl.textContent = alphabet[currentLetter][currentImage];
-      imageEl.src = `${currentLetter + 1}_${currentImage + 1}.png`;
-      speak();
-    }
 
     function speak() {
       const utterance = new SpeechSynthesisUtterance(`${letters[currentLetter]}. ${alphabet[currentLetter][currentImage]}`);
@@ -149,6 +141,16 @@
       speechSynthesis.speak(utterance);
     }
 
+    function updateDisplay() {
+      letterEl.textContent = letters[currentLetter];
+      letterEl.style.color = colors[currentColor];
+      letterEl.style.fontFamily = fonts[currentFont];
+      wordEl.textContent = alphabet[currentLetter][currentImage];
+      imageEl.src = `${currentLetter + 1}_${currentImage + 1}.png`;
+      speak();
+      resetIdleTimer();
+    }
+
     function ripple(x, y) {
       const ripple = document.createElement('div');
       ripple.className = 'ripple';
@@ -159,34 +161,6 @@
       document.querySelector('.rainbow-border').appendChild(ripple);
       setTimeout(() => ripple.remove(), 600);
     }
-
-    let holdTimer;
-    let isHolding = false;
-
-    function holdAnimation() {
-      letterEl.style.transform = 'scale(1.2) translateY(-10px)';
-    }
-
-    function resetLetterStyle() {
-      letterEl.style.transform = '';
-    }
-
-    document.body.addEventListener('mousedown', e => {
-      isHolding = true;
-      holdTimer = setTimeout(() => holdAnimation(), 2000);
-    });
-
-    document.body.addEventListener('mouseup', e => {
-      clearTimeout(holdTimer);
-      if (isHolding) {
-        ripple(e.clientX, e.clientY);
-        currentColor = (currentColor + 1) % colors.length;
-        currentFont = (currentFont + 1) % fonts.length;
-        resetLetterStyle();
-        updateDisplay();
-      }
-      isHolding = false;
-    });
 
     document.body.addEventListener('click', e => {
       ripple(e.clientX, e.clientY);
@@ -210,15 +184,7 @@
       updateDisplay();
     });
 
-    document.body.addEventListener('touchstart', e => {
-      holdTimer = setTimeout(() => holdAnimation(), 2000);
-    });
-
-    document.body.addEventListener('touchend', e => {
-      clearTimeout(holdTimer);
-      resetLetterStyle();
-    });
-
+    // свайпы
     let startX, startY;
     document.body.addEventListener('touchstart', e => {
       startX = e.touches[0].clientX;
@@ -240,46 +206,44 @@
       updateDisplay();
     });
 
-    // Таймер простоя
-	let idleTimer;
-	function resetIdleTimer() {
-	clearTimeout(idleTimer);
-	idleTimer = setTimeout(() => {
-		const word = alphabet[currentLetter][currentImage];
-		const descriptionLine = descriptions.find(line => line.startsWith(word));
-		const description = descriptionLine ? descriptionLine : '${word} - это замечательный предмет.';
-		const utterance = new SpeechSynthesisUtterance(description);
-		utterance.lang = 'ru-RU';
-		utterance.pitch = 0.7;
-		utterance.rate = 0.8;
-		speechSynthesis.cancel();
-		speechSynthesis.speak(utterance);
-	}, 10000); // 10 секунд
-	}
+    // idle-таймер
+    let idleTimer;
+    function resetIdleTimer() {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        const word = alphabet[currentLetter][currentImage];
+        const descriptionLine = descriptions.find(line => line.startsWith(word));
+        const description = descriptionLine || `${word} - это замечательный предмет.`;
+        const utterance = new SpeechSynthesisUtterance(description);
+        utterance.lang = 'ru-RU';
+        utterance.pitch = 0.7;
+        utterance.rate = 0.8;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+      }, 10000);
+    }
 
-    document.body.addEventListener('mousemove', resetIdleTimer);
-    document.body.addEventListener('keydown', resetIdleTimer);
-    document.body.addEventListener('touchmove', resetIdleTimer);
+    ['mousemove', 'keydown', 'touchmove', 'click'].forEach(evt => {
+      document.body.addEventListener(evt, resetIdleTimer);
+    });
+
+    // загрузка описаний
+    fetch('descriptions.txt')
+      .then(response => response.text())
+      .then(text => {
+        descriptions = text.split('\n').map(line => line.trim());
+      });
+
+    // музыка
+    let bgAudio = new Audio("Fon.mp3");
+    bgAudio.loop = true;
+    bgAudio.volume = 0.5;
+    document.addEventListener("click", function startAudio() {
+      bgAudio.play();
+      document.removeEventListener("click", startAudio);
+    });
 
     window.speechSynthesis.onvoiceschanged = updateDisplay;
-	let descriptions = [];
-
-	fetch('descriptions.txt')
-	.then(response => response.text())
-	.then(text => {
-		descriptions = text.split('\n').map(line => line.trim());
-	});
-		// создаём фоновую музыку
-	let bgAudio = new Audio("Fon.mp3");
-	bgAudio.loop = true;
-	bgAudio.volume = 0.5;
-
-	// запускаем музыку при первом клике
-	document.addEventListener("click", function startAudio() {
-	bgAudio.play();
-	document.removeEventListener("click", startAudio); // удаляем обработчик
-	});
-	
     updateDisplay();
   </script>
 </body>

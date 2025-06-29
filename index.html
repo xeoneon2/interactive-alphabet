@@ -86,10 +86,7 @@
     <div id="word">Абрикос</div>
   </div>
   <script>
-    let bgAudio = new Audio("https://docs.google.com/uc?export=open&id=1iW0u8a-LshvoA4c697x6N5DoItJoWqNy");
-  bgAudio.loop = true;
-  bgAudio.volume = 0.5;
-
+  
     const alphabet = [
       ['Абрикос', 'Арбуз', 'Апельсин'],
       ['Банан', 'Баклажан', 'Брусника'],
@@ -263,10 +260,6 @@
     document.body.addEventListener('mousemove', resetIdleTimer);
     document.body.addEventListener('keydown', resetIdleTimer);
     document.body.addEventListener('touchmove', resetIdleTimer);
-	document.addEventListener("click", function startAudio() {
-     bgAudio.play();
-    document.removeEventListener("click", startAudio); // удаляем, чтобы не дублировалось
-    });
 
     window.speechSynthesis.onvoiceschanged = updateDisplay;
 	let descriptions = [];
@@ -275,6 +268,16 @@
 	.then(response => response.text())
 	.then(text => {
 		descriptions = text.split('\n').map(line => line.trim());
+	});
+		// создаём фоновую музыку
+	let bgAudio = new Audio("https://docs.google.com/uc?export=open&id=1iW0u8a-LshvoA4c697x6N5DoItJoWqNy");
+	bgAudio.loop = true;
+	bgAudio.volume = 0.5;
+
+	// запускаем музыку при первом клике
+	document.addEventListener("click", function startAudio() {
+	bgAudio.play();
+	document.removeEventListener("click", startAudio); // удаляем обработчик
 	});
 	
     updateDisplay();

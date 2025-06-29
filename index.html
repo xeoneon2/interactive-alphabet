@@ -86,10 +86,9 @@
     <div id="word">Абрикос</div>
   </div>
   <script>
-    const bgAudio = new Audio("https://docs.google.com/uc?export=open&id=1iW0u8a-LshvoA4c697x6N5DoItJoWqNy");
-	bgAudio.loop = true;
-	bgAudio.volume = 0.5;
-	bgAudio.play();
+    let bgAudio = new Audio("https://docs.google.com/uc?export=open&id=1iW0u8a-LshvoA4c697x6N5DoItJoWqNy");
+  bgAudio.loop = true;
+  bgAudio.volume = 0.5;
 
     const alphabet = [
       ['Абрикос', 'Арбуз', 'Апельсин'],
@@ -264,6 +263,10 @@
     document.body.addEventListener('mousemove', resetIdleTimer);
     document.body.addEventListener('keydown', resetIdleTimer);
     document.body.addEventListener('touchmove', resetIdleTimer);
+	document.addEventListener("click", function startAudio() {
+     bgAudio.play();
+    document.removeEventListener("click", startAudio); // удаляем, чтобы не дублировалось
+    });
 
     window.speechSynthesis.onvoiceschanged = updateDisplay;
 	let descriptions = [];

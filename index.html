@@ -86,6 +86,11 @@
     <div id="word">Абрикос</div>
   </div>
   <script>
+    const bgAudio = new Audio("https://docs.google.com/uc?export=open&id=1iW0u8a-LshvoA4c697x6N5DoItJoWqNy");
+	bgAudio.loop = true;
+	bgAudio.volume = 0.5;
+	bgAudio.play();
+
     const alphabet = [
       ['Абрикос', 'Арбуз', 'Апельсин'],
       ['Банан', 'Баклажан', 'Брусника'],
@@ -140,7 +145,7 @@
     function speak() {
       const utterance = new SpeechSynthesisUtterance(`${letters[currentLetter]}. ${alphabet[currentLetter][currentImage]}`);
       utterance.lang = 'ru-RU';
-      utterance.pitch = 0.6;
+      utterance.pitch = 0.7;
       utterance.rate = 0.8;
       const voices = speechSynthesis.getVoices();
       utterance.voice = voices.find(v => v.lang === 'ru-RU' && v.name.toLowerCase().includes('male')) || voices.find(v => v.lang === 'ru-RU');
@@ -249,11 +254,11 @@
 		const description = descriptionLine ? descriptionLine : '${word} - это замечательный предмет.';
 		const utterance = new SpeechSynthesisUtterance(description);
 		utterance.lang = 'ru-RU';
-		utterance.pitch = 0.6;
-		utterance.rate = 0.7;
+		utterance.pitch = 0.7;
+		utterance.rate = 0.8;
 		speechSynthesis.cancel();
 		speechSynthesis.speak(utterance);
-	}, 4000); // 10 секунд
+	}, 10000); // 10 секунд
 	}
 
     document.body.addEventListener('mousemove', resetIdleTimer);

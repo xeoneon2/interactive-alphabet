@@ -3,10 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Интерактивная Азбука</title>
+
+  <!-- Подключение манифеста -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Иконки для PWA (на случай, если браузер не поддерживает manifest) -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+  <!-- Шрифты -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Russo+One&family=Comfortaa:wght@600&display=swap" rel="stylesheet">
+
   <style>
-     {
+    * {
       box-sizing: border-box;
     }
     html, body {
@@ -79,6 +91,7 @@
     }
   </style>
 </head>
+<body>
 <body>
   <div class="rainbow-border">
     <div id="letter">А</div>

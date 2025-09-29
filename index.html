@@ -259,5 +259,19 @@
     window.speechSynthesis.onvoiceschanged = updateDisplay;
     updateDisplay();
   </script>
+<script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('Сервис-воркер зарегистрирован: ', registration);
+          })
+          .catch(error => {
+            console.log('Ошибка регистрации сервис-воркера: ', error);
+          });
+      });
+    }
+  </script>
+
 </body>
 </html>

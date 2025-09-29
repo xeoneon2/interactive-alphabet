@@ -3,8 +3,8 @@ self.addEventListener('install', e => {
     caches.open('abc-cache').then(cache => {
       return cache.addAll([
         '/',
-        '/index.html',
-        '/manifest.json'
+        './index.html',
+        './manifest.json'
       ]);
     })
   );
